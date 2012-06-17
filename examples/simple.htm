@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>asf</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Le HTML5 shim, for IE6-8 support of HTML elements -->
+      <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->
+
+    <link href="http://bootswatch.com/journal/bootstrap.min.css" rel="stylesheet">
+    <link href="http://bootswatch.com/assets/css/bootstrap-responsive.css" rel="stylesheet">
+
+    <link href='http://fonts.googleapis.com/css?family=Bree+Serif' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+      
+      h1 {
+        font: 400 60px/1.3 'Bree Serif', Georgia, serif;
+      }
+       
+      body {
+        font: 400 14px/1.6 'Open Sans', Verdana, Helvetica, sans-serif;
+      }
+      /*
+      h1 {
+        font-family: 'Bree Serif', Georgia, serif;
+      }
+       
+      body {
+        font-family: 'Open Sans', Verdana, Helvetica, sans-serif;
+      }
+      */
+    </style>
+  </head>
+  <body>
+
+
+    <div class="container">
+
+
+<!-- Typography
+================================================== -->
+<section id="example">
+  <div class="page-header">
+    <h1><b>behave</b> Simple example</h1>
+  </div>
+      <!-- Headings & Paragraph Copy -->
+      <div class="row">
+        
+        <div class="span12">
+          <div class="well">
+            <p>Some text here</p>
+
+        <ul>
+          <li>Sequence (root)
+          <ul>
+            <li>Go To Action {x: 2, y: 0}</li>
+            <li>Go To Action {x: 6, y: 4}</li>
+            <li>Go To Action {x0, y: 0}</li>
+          </ul>
+          </li>
+        </ul>
+      </div>
+
+        <canvas id="canvas" width="1000" height="400"></canvas>
+          
+        </div>
+     </div>
+
+    </section>
+
+     <!-- Footer
+      ================================================== -->
+      <footer class="footer">
+        <p class="pull-right"><a href="#">Back to top</a></p>
+      </footer>
+
+    </div><!-- /container -->
+
+    <script src="lib/Tween.js"></script>
+    <script src="lib/RequestAnimationFrame.js"></script>
+
+    <script>
+      var position;
+      var target;
+      var tween, tweenBack;
+      var canvas;
+
+      position = {x: 150, y: 150, rotation: 0, colorIndex: 0};
+      //init();
+      //animate();
+
+      function init() {
+        position = {x: 150, y: 150, rotation: 0, colorIndex: 0};
+        target = document.getElementById('target');
+        canvas = document.getElementById("canvas");
+        tween = new TWEEN.Tween(position)
+          .to({x: 750, y: 250, rotation: 360, colorIndex: 255}, 3000)
+          .delay(1000)
+          .easing(TWEEN.Easing.Elastic.InOut)
+          .onUpdate(update);
+
+        tweenBack = new TWEEN.Tween(position)
+          .to({x: 150, y: 150, rotation: 0, colorIndex: 0}, 3000)
+          .easing(TWEEN.Easing.Elastic.InOut)
+          .onUpdate(update);
+
+        tween.chain(tweenBack);
+        tweenBack.chain(tween);
+
+        tween.start();
+      }
+
+      function animate() {
+        requestAnimationFrame( animate );
+        TWEEN.update();
+      }
+
+      function updateWithPosition(newPosition) {
+        position = newPosition;
+        update();
+      }
+
+      function update() {
+        console.log("update!");
+        if (!canvas.getContext)
+              return;
+
+            var context = canvas.getContext("2d");
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+            
+            drawGrid(context);
+        drawPlayer(context);
+      }
+
+      function drawGrid(context) {
+        var gridSize = 100;
+        for (var x = gridSize; x < context.canvas.width; x += gridSize) {
+          context.beginPath();
+              context.moveTo(x, 0);
+              context.lineTo(x, context.canvas.height);
+              context.stroke();
+          for (var y = gridSize; y < context.canvas.height; y += gridSize) {
+            context.beginPath();
+                context.moveTo(0, y);
+                context.lineTo(context.canvas.width, y);
+                context.stroke();
+          }
+        }
+      }
+
+      function drawPlayer(context) {
+          context.save(); 
+          context.translate(position.x, position.y);
+          var boxSize = 50;
+          var rotDegrees = Math.floor(position.rotation);
+          var rotRadians = rotDegrees * (Math.PI / 180);
+        context.rotate(rotRadians);  
+
+          context.shadowColor = "#999";
+          context.shadowBlur = 10;
+          context.shadowOffsetX = 5;
+          context.shadowOffsetY = 5;
+
+        context.fillStyle = "rgb(" + Math.floor(position.colorIndex) + ", 0, " + (255 - Math.floor(position.colorIndex)) + ")";
+        context.fillRect(-boxSize/2, -boxSize/2, boxSize, boxSize);
+
+        context.textAlign = "center";
+        context.textBaseline = 'top';
+        context.fillText("Hello World!", 0, boxSize/2);
+
+        context.restore();
+      }
+    </script>
+
+    <script src="../dist/behave.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/coffeescript">
+      Sequence = require("sequence")
+      CallbackTask = require("callbacktask")
+      TaskStatus = require("taskstatus")
+
+      class MoveTweenTask # extends CallbackTask
+        constructor: ->
+          @status = null
+          @tween = new TWEEN.Tween(position)
+            .to({x: 750, y: 250, rotation: 360, colorIndex: 255}, 5000)
+            .easing(TWEEN.Easing.Elastic.InOut)
+            .onUpdate(@onUpdate)
+            .onComplete(@onCompleted)
+        onUpdate: -> 
+          update()
+        onCompleted: -> 
+          @status = TaskStatus.SUCCESS
+          console.log 'MoveTweenTask COMPLETED'
+        execute: ->
+          if not @status?
+            @tween.start()
+            console.log 'MoveTweenTask STARTED'
+            @status = TaskStatus.RUNNING
+          TWEEN.update()
+          @status
+
+      moveTask = new MoveTweenTask()
+
+      #status = TaskStatus.RUNNING
+      #while status is TaskStatus.RUNNING
+      #  status = moveTask.execute()
+      
+      run = ->
+        moveTask.execute()
+        requestAnimationFrame(run)
+
+      run()
+
+
+      ###
+      root = new Sequence()
+
+      root.add new CallbackTask -> 
+        console.log 'Callback task here (succeeds)!'
+        TaskStatus.SUCCESS
+
+      root.add new MoveTweenTask()
+
+      root.add new CallbackTask -> 
+        console.log 'Another callback task here (fails)!'
+        TaskStatus.FAILURE
+
+      root.add new CallbackTask -> 
+        console.log 'A third callback task here (fails)!'
+        TaskStatus.FAILURE
+
+      #status = TaskStatus.RUNNING
+      #while status is TaskStatus.RUNNING
+      #  status = root.execute()
+
+      ###
+    </script>
+    <script src="http://coffeescript.org/extras/coffee-script.js"></script>
+    
+  </body>
+</html>

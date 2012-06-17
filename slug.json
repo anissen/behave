@@ -1,0 +1,13 @@
+{
+  "main": "./src/test",
+
+  "public": "./dist",
+
+   "paths": ["./src"],
+
+   "jsPath": "/behave.js",
+
+   "libs": [],
+
+   "dependencies": []
+}
