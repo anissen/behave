@@ -1,7 +1,5 @@
 # Cakefile to document, compile, join and minify CoffeeScript files for
 # client side apps. Just edit the config object literal.
-#
-# -jrmoran
 
 fs            = require 'fs'
 {exec, spawn} = require 'child_process'
@@ -79,3 +77,11 @@ task 'watch:test', 'watch and run tests', ->
     whenChanged "#{f}.coffee", ->
       console.log "===== TEST #{new Date().toLocaleString()} ====="
       invoke 'test'
+
+# tasks:
+# build:release
+# build:debug
+# test
+# docs
+# watch:test
+# watch:build
