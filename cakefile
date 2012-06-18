@@ -35,6 +35,10 @@ task 'watch', 'watch and compile changes in source dir', ->
 task 'build', 'join and compile *.coffee files', ->
   exec "coffee -j #{outJS}.js -c #{strFiles}", exerr
 
+task 'build:debug', 'concatinate and compile but not minify', ->
+  console.log 'Creating debug build'
+  exec "hem build -d", exerr
+
 #task 'min', 'minify compiled *.js file', ->
 #  exec "java -jar #{config.yuic} #{outJS}.js -o #{outJS}.min.js", exerr
 
