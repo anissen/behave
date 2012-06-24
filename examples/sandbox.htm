@@ -36,9 +36,27 @@
 
         <div class="row">
           <div class="span12">
+            <form class="well form-inline">
+              <label for="exampleChooser">Select an example</label>
+              <select id="exampleChooser">
+                <option selected="selected" disabled="disabled">Pick one</option>
+                <option value="code/hello-world.coffee">Hello World</option>
+                <option value="code/hello-world-sequence.coffee">Hello Sequence</option>
+                <option value="code/simple-sequence.coffee">Simple sequence</option>
+              </select>
+            </form>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="span12">
             <h3>Behavior Tree</h3>
             <textarea id="code" class="code"></textarea>
             <br/>
+            <div class="alert alert-error hide" id="compileError">
+              <strong>Oh snap!</strong>
+              <p id="errorText">Change this and that and try again. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Cras mattis consectetur purus sit amet fermentum.</p>
+            </div>
             <a id="runBtn" class="btn"><i class="icon-play-circle"></i> Run</a>
           </div>
         </div>
@@ -48,7 +66,7 @@
         <div class="row">
           <div class="span12">
             <h3>Output</h3>
-            <pre id="output" class="pre-scrollable"></pre>
+            <pre id="output" class="pre-scrollable biggerText"></pre>
           </div>
         </div>
       </section>
@@ -61,6 +79,52 @@
 
     <script src="lib/jquery/jquery.min.js" type="text/javascript"></script>
     <script src="../lib/behave.js" type="text/javascript"></script>
+    
+    <script type="text/coffeescript">
+      chooserEl = $('#exampleChooser')
+      outputEl  = $('#output')
+      notificationEl = $("#compileError")
+
+      window.print = (text) -> 
+        outputEl.html(outputEl.html() + text + '\n')
+      
+      loadContent = (file) -> 
+        $.get file, (data) ->
+          editor.setValue data
+
+      chooserEl.on 'change', -> loadContent $(this).val()
+
+      editor = CodeMirror.fromTextArea $('#code')[0], 
+        theme: 'default'
+        lineNumbers: false
+
+      editor.setValue $('#btCode').html()
+
+      showError = (msg) ->
+        notificationEl.find('#errorText').html msg
+        notificationEl.slideDown 'fast'
+
+      compileSource = ->
+        source = editor.getValue()
+        window.compiledJS = ''
+        try
+          window.compiledJS = CoffeeScript.compile source, bare: on
+        catch error
+          showError error.message
+
+      evalJS = ->
+        try
+          eval window.compiledJS
+        catch error
+          showError error.message
+
+      $('#runBtn').on 'click', -> 
+        outputEl.html ''
+        notificationEl.slideUp 'fast'
+        compileSource()
+        evalJS()
+    </script>
+
     <script type="text/coffeescript" id="btCode">
 Sequence = require("core/sequence")
 TaskStatus = require("core/taskstatus")
@@ -68,8 +132,7 @@ TaskStatus = require("core/taskstatus")
 class OutputTask
   constructor: (@text, @status = TaskStatus.SUCCESS) ->
   execute: ->
-    outputEl = $('#output') 
-    outputEl.html(outputEl.html() + @text + ' [' + @status + ']\n')
+    print @text + ' [' + @status + ']'
     @status
 
 root = new Sequence()
@@ -79,31 +142,7 @@ root.add new OutputTask 'Task 3', TaskStatus.FAILURE
 root.add new OutputTask 'Task 4'
 root.execute()
     </script>
-    
-    <script type="text/coffeescript">
-      editor = CodeMirror.fromTextArea $('#code')[0], 
-        theme: 'default'
-        lineNumbers: false
 
-      editor.setValue $('#btCode').html()
-
-      compileSource = ->
-        source = editor.getValue()
-        window.compiledJS = ''
-        try
-          window.compiledJS = CoffeeScript.compile source, bare: on
-        catch error
-          alert error.message
-
-      evalJS = ->
-        try
-          eval window.compiledJS
-        catch error then alert error
-
-      $('#runBtn').on 'click', -> 
-        compileSource()
-        evalJS()
-    </script>
     <script src="lib/CoffeeScript.js"></script>
 
   </body>

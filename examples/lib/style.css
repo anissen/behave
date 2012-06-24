@@ -13,3 +13,7 @@ h1 {
 	font-size: 14px;
 	height: auto; overflow: visible;
 }
+
+.biggerText {
+	font-size: 14px;
+}
