@@ -1,28 +1,38 @@
 {
   "name": "behave",
-  "version": "0.0.1",
   "description": "Behavior Trees library written in CoffeeScript",
+  "version": "0.0.1",
+  "homepage": "https://github.com/anissen/behave",
+  "keywords": "behavior trees game ai",
   "author": {
     "name": "Anders Nissen",
-    "email": "andnis@gmail.com"
+    "email": "andnis@gmail.com",
+    "url": "http://andersnissen.com"
   },
-  "homepage": "https://github.com/annissen/behave",
-  "keywords":    "behavior trees game ai",
   "repository": {
     "type": "git",
-    "url": "git://github.com/annissen/behave.git"
+    "url": "https://github.com/anissen/behave.git"
   },
   "bugs": {
-    "url": "https://github.com/annissen/behave/issues"
+    "url": "https://github.com/anissen/behave/issues"
   },
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/annissen/behave/blob/master/LICENSE-MIT"
+      "url": "https://github.com/anissen/behave/blob/master/LICENSE-MIT"
     }
   ],
+  "main": "lib/behave",
+  "engines": {
+    "node": "*"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {},
   "devDependencies": {
     "mocha": "1.1.0",
     "should": "0.6.3"
-  }
+  },
+  "keywords": []
 }
