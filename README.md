@@ -15,7 +15,7 @@ The actual implementation of the behaviors is hidden in the composition of the s
 
 One thing that sets behavior trees signiﬁcantly apart from standard HFSMs is that transitions between nodes do not need to be explicitly deﬁned. Handling of transitions are built directly into the hierarchical structure of behavior trees. Action selection is performed by searching through the tree. The search traverses the tree and the nodes guide the direction of the search and thus help to select relevant actions. The search is intuitive as only a few distinct types of search-guiding nodes are needed and each has a speciﬁc purpose.
 
-I wrote my [Master's Thesis](https://docs.google.com/viewer?a=v&pid=sites&srcid=ZGVmYXVsdGRvbWFpbnxiZWhhdmlvcnRyZWVlZGl0b3J8Z3g6NzZiNDU2OWY0MTRlODUzYQ) on the subject. For more information see the [project site](https://sites.google.com/site/behaviortreeeditor/) for my Master's Thesis.
+I wrote my [Master's Thesis](https://docs.google.com/viewer?a=v&pid=sites&srcid=ZGVmYXVsdGRvbWFpbnxiZWhhdmlvcnRyZWVlZGl0b3J8Z3g6NzZiNDU2OWY0MTRlODUzYQ) in Computer Science on the subject. For more information see the [project site](https://sites.google.com/site/behaviortreeeditor/) for my Master's Thesis.
 
 
 ## Development roadmap
