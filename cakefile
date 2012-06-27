@@ -3,7 +3,7 @@
 
 fs            = require 'fs'
 {exec, spawn} = require 'child_process'
-
+  
 # order of files in `inFiles` is important
 config =
   srcDir:  'src'
@@ -47,7 +47,7 @@ task 'bam', 'build and minify', ->
 #task 'test', 'runs jasmine tests', ->
 #  exec 'jasmine-node --coffee --verbose spec', exerr
 
-REPORTER = "list"
+REPORTER = "spec"
 
 task "test", "run tests", ->
   exec "mocha 
@@ -64,6 +64,21 @@ task "test", "run tests", ->
     throw err if err
     console.log output
 
+task "testw", "run tests with mocha + watch", ->
+  exec "mocha 
+    --compilers coffee:coffee-script
+    --reporter #{REPORTER}
+    --require coffee-script
+    --require should
+    --require test/helpers/test-helper.coffee
+    --colors
+    --ui bdd
+    --growl 
+    --watch
+    #{(config.testDirs).join ' '}
+  ", (err, output) ->
+    throw err if err
+    console.log output
 
 # watch files and run tests automatically
 task 'watch:test', 'watch and run tests', ->
