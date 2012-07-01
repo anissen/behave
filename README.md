@@ -1,4 +1,4 @@
-# Oh, behave!
+# Oh, _behave_!
 
 *Behavior Trees library written in CoffeeScript*
 
@@ -22,7 +22,7 @@ I wrote my [Master's Thesis](https://docs.google.com/viewer?a=v&pid=sites&srcid=
 
 * Create a very simple example of Sequence, Selector and a few primitive Tasks
 * Implement a few game related extension tasks
-* * MoveAction (movement on a 2D surface)
+* MoveAction (movement on a 2D surface)
 * ?
 * Make a more extensive example of using behavior trees (maybe as a different project?)
 * Profit!
