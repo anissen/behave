@@ -36,6 +36,7 @@
 
         <div class="row">
           <div class="span12">
+            <h3>Examples</h3>
             <form class="well form-inline">
               <label for="exampleChooser">Select an example</label>
               <select id="exampleChooser">
@@ -49,8 +50,17 @@
         </div>
 
         <div class="row">
+          <div class="span12">
+            <h3>Test grid</h3>
+            <div class="well">
+              <canvas id="canvas" width="1100px" height="300px"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
           <div class="span8">
-            <h3>Behavior Tree</h3>
+            <h3>Behavior Tree code</h3>
             <textarea id="code" class="code"></textarea>
             <br/>
             <div class="alert alert-error hide" id="compileError">
@@ -144,6 +154,75 @@ root.execute()
     </script>
 
     <script src="lib/CoffeeScript.js"></script>
+    
+    <script src="lib/Tween.js"></script>
+    <script src="lib/RequestAnimationFrame.js"></script>
 
+    <script>
+      var canvas;
+      var gridSize = 75;
+      var boxSize = 50;
+      var startPosition = gridSize * 2 - gridSize / 2;
+      var position = {x: startPosition, y: startPosition, rotation: 0, colorIndex: 0};
+
+      if (!canvas.getContext)
+        return;
+
+      var context = canvas.getContext("2d");
+
+      function update() {
+        context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+        
+        drawGrid(context);
+        drawPlayer(context);
+      }
+
+      function drawGrid(context) {
+        context.fillStyle = "rgb(150, 150, 150)";
+        for (var x = gridSize; x < context.canvas.width; x += gridSize) {
+          context.fillText(Math.round(x / gridSize), x + gridSize / 2, 10);
+          context.beginPath();
+          context.moveTo(x, 0);
+          context.lineTo(x, context.canvas.height);
+          context.stroke();
+        }
+        for (var y = gridSize; y < context.canvas.height; y += gridSize) {
+          context.fillText(Math.round(y / gridSize), 10, y + gridSize / 2);
+          context.beginPath();
+          context.moveTo(0, y);
+          context.lineTo(context.canvas.width, y);
+          context.stroke();
+        }
+      }
+
+      function drawPlayer(context) {
+        context.save(); 
+        context.translate(position.x, position.y);
+        var rotDegrees = Math.floor(position.rotation);
+        var rotRadians = rotDegrees * (Math.PI / 180);
+        context.rotate(rotRadians);  
+
+        context.shadowColor = "#999";
+        context.shadowBlur = 10;
+        context.shadowOffsetX = 5;
+        context.shadowOffsetY = 5;
+
+        context.fillStyle = "rgb(" + Math.floor(position.colorIndex) + ", 0, " + (255 - Math.floor(position.colorIndex)) + ")";
+        context.fillRect(-boxSize/2, -boxSize/2, boxSize, boxSize);
+
+        context.textAlign = "center";
+        context.textBaseline = 'top';
+        context.fillText("Hello World!", 0, boxSize/2);
+
+        context.restore();
+      }
+
+      var run = function() {
+        requestAnimationFrame(run);
+        update();
+      };
+
+      run();
+    </script>
   </body>
 </html>
