@@ -1,6 +1,8 @@
 
 class Task
-  constructor: ->
-    throw new Error 'Task cannot be instantiated'
+  activate: ->
+  deactivate: ->
+  execute: ->
+  decide: -> true
 
 module.exports = Task

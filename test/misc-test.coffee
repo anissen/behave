@@ -2,14 +2,15 @@
 CallbackTask  = require '../src/core/callbacktask'
 Sequence      = require '../src/core/sequence'
 Selector      = require '../src/core/selector'
+Task          = require '../src/core/task'
 TaskStatus    = require '../src/core/taskstatus'
 
-class RandomTask
+class RandomTask extends Task
   execute: ->
     return TaskStatus.SUCCESS if Math.random() < 0.5
     TaskStatus.FAILURE
 
-class OutputTask
+class OutputTask extends Task
   constructor: (@text) ->
   execute: ->
     console.log @text
