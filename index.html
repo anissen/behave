@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <title>Behave</title>
+  </head>
+  <body>
+    <!-- <script src="http://localhost:35729/livereload.js"></script> -->
+    <script src="lib/bluebird.js"></script>
+    <script src="lib/es6-module-loader.js"></script>
+    <script type="module">
+      import { Task, SucceedingTask, FailingTask, PrintTask, Sequence } from 'src/bt';
+
+      var t = new Task();
+      var st = new SucceedingTask();
+      var sequence = new Sequence();
+      sequence.add(new PrintTask('Hi'));
+      sequence.add(new PrintTask('Hello'));
+      sequence.add(new FailingTask());
+      sequence.add(new PrintTask('Yo'));
+      //var promiseSequence = Promise.promisify(sequence.execute);
+
+      Promise.onPossiblyUnhandledRejection(function(error){
+        console.log('Fail', error);
+        //throw error;
+      });
+
+      sequence.promiseExecuteAll().then(function(result) {
+        console.log('result', result);
+      }).catch(function(e){
+        console.log('Error ', e);
+      });
+      //console.log('result', sequence.execute());
+
+
+
+      // dynamic loading API
+      // System.import('src/bt').then(function(module) {
+      //   var t = new module.Task();
+      //   var st = new module.SucceedingTask();
+      //   console.log('result', st.execute());
+      //   console.log('result', t.execute());
+      // }, function(err) {
+      //   console.log('Oh noes, it failed: ', err);
+      // });
+    </script>
+  </body>
+</html>
