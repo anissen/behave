@@ -8,15 +8,53 @@
     <script src="lib/bluebird.js"></script>
     <script src="lib/es6-module-loader.js"></script>
     <script type="module">
-      import { Task, SucceedingTask, FailingTask, PrintTask, Sequence } from 'src/bt';
+      import { Behave } from 'src/behave';
+      import { BehaviorTree, Task, FunctionTask, PrintTask, Sequence } from 'src/bt';
+      import 'src/behave_plugin';
 
-      var t = new Task();
-      var st = new SucceedingTask();
-      var sequence = new Sequence();
-      sequence.add(new PrintTask('Hi'));
-      sequence.add(new PrintTask('Hello'));
-      sequence.add(new FailingTask());
-      sequence.add(new PrintTask('Yo'));
+      var value = 0;
+      var incrementFunc = function() { value++; return true; };
+      var printValueFunc = function() { console.log('value', value); return true; };
+
+      var sequence = new Sequence()
+        .add(new FunctionTask(printValueFunc))
+        .add(new FunctionTask(incrementFunc), new FunctionTask(printValueFunc))
+        .add(new FunctionTask(() => undefined))
+        .add(new FunctionTask(incrementFunc), new FunctionTask(printValueFunc));
+
+      // var bt = new BehaviorTree();
+      // bt.add(sequence);
+
+      console.log(Behave);
+
+      var bt = Behave.create(sequence, { dummyPlugin: true });
+      // var bt2 = Behave.create(new FunctionTask(() => true));
+
+      bt.on('activate', function() {
+        console.log('triggered by "activate" #1');
+      });
+
+      bt.on('before_execute', function() {
+        console.log('triggered by "before_execute" #1');
+        // return false;
+      });
+
+      bt.on('after_execute', function() {
+        console.log('triggered by "after_execute" #1');
+      });
+
+      Behave.activate();
+
+      console.log('result', Behave.execute());
+
+      // var successFunc = (callback) => callback(null, true);
+      // var failureFunc = (callback) => callback('failure', null);
+
+      // sequence.add(new FunctionTask(successFunc));
+      // sequence.add(new PrintTask('Hi'));
+      // sequence.add(new PrintTask('Hello'));
+      // sequence.add(new FunctionTask(failureFunc));
+      // sequence.add(new PrintTask('Yo'));
       //var promiseSequence = Promise.promisify(sequence.execute);
 
       Promise.onPossiblyUnhandledRejection(function(error){
@@ -24,12 +62,11 @@
         //throw error;
       });
 
-      sequence.promiseExecuteAll().then(function(result) {
-        console.log('result', result);
-      }).catch(function(e){
-        console.log('Error ', e);
-      });
-      //console.log('result', sequence.execute());
+      // sequence.promiseExecuteAll().then(function(result) {
+      //   console.log('result', result);
+      // }).catch(function(e){
+      //   console.log('Error ', e);
+      // });
 
 
 

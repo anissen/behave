@@ -1,48 +1,35 @@
 
 export class Task {
   constructor(name = 'Task') {
-    console.log(name + ' created');
+    // console.log(name + ' created');
   }
 
-  execute(callback) {
-    callback('Cannot run execute on Task', false);
+  execute() {
+    throw new Error('Cannot run execute on Task');
+    return false; //callback(false);
   }
 
-  promiseExecute() {
-    return (Promise.promisify(this.execute.bind(this)))();
-  }
+  // promiseExecute() {
+  //   return (Promise.promisify(this.execute.bind(this)))();
+  // }
 
   toString() {
     return 'Task';
   }
 }
 
-export class SucceedingTask extends Task {
-  constructor() {
-    super('SucceedingTask');
+export class FunctionTask extends Task {
+  constructor(func) {
+    super('FunctionTask');
+    this.func = func;
   }
 
-  execute(callback) {
-    callback(null, true);
-  }
-
-  toString() {
-    return 'SucceedingTask';
-  }
-}
-
-export class FailingTask extends Task {
-  constructor() {
-    super('FailingTask');
-  }
-
-  execute(callback) {
-    console.log('Failing... now!');
-    callback('Burn to fail!', false);
+  execute() {
+    return this.func();
   }
 
   toString() {
-    return 'FailingTask';
+    return 'FunctionTask';
   }
 }
 
@@ -52,9 +39,9 @@ export class PrintTask extends Task {
     this.text = text;
   }
 
-  execute(callback) {
+  execute() {
     console.log('PrintTask: ' + this.text);
-    callback(null, true);
+    return true; //callback(true);
   }
 
   toString() {
@@ -68,14 +55,24 @@ export class Sequence extends Task {
     this.tasks = [];
   }
 
-  add(task) { // ...task
-    this.tasks.push(task); // ...task
+  add(...task) {
+    this.tasks.push(...task);
+    return this;
   }
 
-  execute(callback) {
-    this.tasks[0].execute(callback);
+  execute() {
+    // return Promise.reduce(this.tasks, function(result, task) {
+    //   if (!result) return result;
+    //   return task.promiseExecute();
+    // }, true);
+
+    return this.tasks.reduce(function(result, task) {
+      if (!result) return result;
+      return task.execute();
+    }, true);
   }
 
+  /*
   executeAll() {
     var me = this;
     return this.tasks.map(function(task) { return task.promiseExecute(); });
@@ -84,4 +81,30 @@ export class Sequence extends Task {
   promiseExecuteAll() {
     return Promise.all(this.executeAll());
   }
+  */
 }
+
+/*
+export class Behave {
+  constructor() {
+    this.trees = [];
+  }
+
+  create() {
+    return new BehaviorTree();
+  }
+
+  add(tree...) {
+    this.trees.push(...tree);
+  }
+
+  update() {
+    this.trees.forEach(tree => tree.execute(callback));
+  }
+}
+*/
+
+export class BehaviorTree extends Task {
+  
+}
+
