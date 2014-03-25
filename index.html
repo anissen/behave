@@ -11,7 +11,7 @@
     <script src="lib/es6-module-loader.js"></script>
     <script type="module">
       import { Behave } from 'src/behave';
-      import { BehaviorTree, Task, FunctionTask, PrintTask, Sequence } from 'src/bt';
+      import { BehaviorTree, Task, FunctionTask, PrintTask, Sequence, Selector } from 'src/bt';
       import 'src/behave_plugin';
 
       // Canvas
@@ -56,8 +56,16 @@
         .add(new FunctionTask(() => Math.random() < 0.1))
         .add(new FunctionTask(function() { blueColor = Math.round(Math.random() * 255); return true; }));
 
+      var printSelector = new Selector()
+        .add(new Sequence()
+          .add(new FunctionTask(() => Math.random() < 0.5))
+          .add(new PrintTask('Succeeded!'))
+        )
+        .add(new PrintTask('Failed!'));
+
       var bt = Behave.create(moveSequence, { dummyPlugin: true });
       var bt2 = Behave.create(colorSequence, { dummyPlugin: false });
+      // var bt3 = Behave.create(printSelector);
       // var bt2 = Behave.create(new FunctionTask(() => true));
 
       bt.on('activate', function() {
@@ -110,9 +118,13 @@
         window.Behave.execute();
 
         counter++;
+        ctx.beginPath();
         ctx.fillStyle = 'rgb(' + Math.round(Math.abs(Math.sin(counter / 100) * 255)) + ',0,' + blueColor + ')';
         // ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillRect(pos.x - boxSize / 2, pos.y - boxSize / 2, boxSize, boxSize);
+        ctx.arc(pos.x - boxSize / 2, pos.y - boxSize / 2, boxSize / 2, 0, Math.PI * 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
 
         window.requestAnimationFrame(update);
       }

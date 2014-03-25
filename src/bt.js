@@ -1,20 +1,16 @@
 
 export class Task {
   constructor(name = 'Task') {
-    // console.log(name + ' created');
+    this.name = name;
   }
 
   execute() {
     throw new Error('Cannot run execute on Task');
-    return false; //callback(false);
+    return false;
   }
 
-  // promiseExecute() {
-  //   return (Promise.promisify(this.execute.bind(this)))();
-  // }
-
   toString() {
-    return 'Task';
+    return this.name;
   }
 }
 
@@ -27,10 +23,6 @@ export class FunctionTask extends Task {
   execute() {
     return this.func();
   }
-
-  toString() {
-    return 'FunctionTask';
-  }
 }
 
 export class PrintTask extends Task {
@@ -41,11 +33,7 @@ export class PrintTask extends Task {
 
   execute() {
     console.log('PrintTask: ' + this.text);
-    return true; //callback(true);
-  }
-
-  toString() {
-    return 'PrintTask';
+    return true;
   }
 }
 
@@ -62,11 +50,6 @@ export class Sequence extends Task {
   }
 
   execute() {
-    // return Promise.reduce(this.tasks, function(result, task) {
-    //   if (!result) return result;
-    //   return task.promiseExecute();
-    // }, true);
-
     for (var i = 0; i < this.tasks.length; i++) {
       var task = this.tasks[i];
       if (this.runningTask && task !== this.runningTask) continue;
@@ -77,38 +60,32 @@ export class Sequence extends Task {
       if (!result) return result;
     }
   }
-
-  /*
-  executeAll() {
-    var me = this;
-    return this.tasks.map(function(task) { return task.promiseExecute(); });
-  }
-
-  promiseExecuteAll() {
-    return Promise.all(this.executeAll());
-  }
-  */
 }
 
-/*
-export class Behave {
+export class Selector extends Task {
   constructor() {
-    this.trees = [];
+    super('Selector');
+    this.tasks = [];
+    this.runningTask = null;
   }
 
-  create() {
-    return new BehaviorTree();
+  add(...task) {
+    this.tasks.push(...task);
+    return this;
   }
 
-  add(tree...) {
-    this.trees.push(...tree);
-  }
+  execute() {
+    for (var i = 0; i < this.tasks.length; i++) {
+      var task = this.tasks[i];
+      if (this.runningTask && task !== this.runningTask) continue;
 
-  update() {
-    this.trees.forEach(tree => tree.execute(callback));
+      this.runningTask = null;
+      var result = task.execute();
+      if (result === undefined) this.runningTask = task;
+      if (result) return result;
+    }
   }
 }
-*/
 
 export class BehaviorTree extends Task {
 

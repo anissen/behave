@@ -1,15 +1,10 @@
 
 export var Behave = (function(moduleName, window) {
+  var decks = [];
+  var plugins = {};
+  
   var createBehaviorTree = function(rootTask, selectedPlugins) {
     var listeners = {};
-
-    var activate = function() {
-      fire('activate', this);
-    };
-
-    var deactivate = function() {
-      fire('activate', this);
-    };
 
     var execute = function() {
       if (!fire('before_execute', this)) return;
@@ -37,7 +32,6 @@ export var Behave = (function(moduleName, window) {
     var deck = {
       on: on,
       fire: fire,
-      activate: activate,
       execute: execute
     };
 
@@ -53,10 +47,6 @@ export var Behave = (function(moduleName, window) {
     return deck;
   };
 
-  var decks = [];
-
-  var plugins = {};
-
   var callOnAllDecks = function(method) {
     return function() {
       var args = arguments;
@@ -69,7 +59,6 @@ export var Behave = (function(moduleName, window) {
   var Behave = {
     create: createBehaviorTree,
     execute: callOnAllDecks('execute'),
-    activate: callOnAllDecks('activate'),
     plugins: plugins
   };
   window[moduleName] = Behave;
