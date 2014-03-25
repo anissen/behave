@@ -53,6 +53,7 @@ export class Sequence extends Task {
   constructor() {
     super('Sequence');
     this.tasks = [];
+    this.runningTask = null;
   }
 
   add(...task) {
@@ -66,10 +67,15 @@ export class Sequence extends Task {
     //   return task.promiseExecute();
     // }, true);
 
-    return this.tasks.reduce(function(result, task) {
+    for (var i = 0; i < this.tasks.length; i++) {
+      var task = this.tasks[i];
+      if (this.runningTask && task !== this.runningTask) continue;
+
+      this.runningTask = null;
+      var result = task.execute();
+      if (result === undefined) this.runningTask = task;
       if (!result) return result;
-      return task.execute();
-    }, true);
+    }
   }
 
   /*
@@ -105,6 +111,5 @@ export class Behave {
 */
 
 export class BehaviorTree extends Task {
-  
-}
 
+}

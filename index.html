@@ -4,81 +4,120 @@
     <title>Behave</title>
   </head>
   <body>
+    <canvas id="testCanvas" width="800px" height="600px" style="border: 1px solid black"></canvas>
+
     <!-- <script src="http://localhost:35729/livereload.js"></script> -->
-    <script src="lib/bluebird.js"></script>
+    <!-- <script src="lib/bluebird.js"></script> -->
     <script src="lib/es6-module-loader.js"></script>
     <script type="module">
       import { Behave } from 'src/behave';
       import { BehaviorTree, Task, FunctionTask, PrintTask, Sequence } from 'src/bt';
       import 'src/behave_plugin';
 
+      // Canvas
+      var canvas = document.getElementById('testCanvas');
+
+      var pos = { x: canvas.width / 2, y: canvas.height / 2 };
       var value = 0;
       var incrementFunc = function() { value++; return true; };
       var printValueFunc = function() { console.log('value', value); return true; };
 
+      var MoveTask = function(posX, posY, moveSpeed, acceptableDist) {
+        return new FunctionTask(function() {
+          var mag = Math.sqrt(Math.pow(posX - pos.x, 2) + Math.pow(posY - pos.y, 2));
+          if (mag < acceptableDist) return true;
+          var unit = {};
+          unit.x = (posX - pos.x) / mag;
+          unit.y = (posY - pos.y) / mag;
+          pos.x += unit.x * moveSpeed;
+          pos.y += unit.y * moveSpeed;
+          return undefined; // running
+        });
+      };
+
+      /*
       var sequence = new Sequence()
         .add(new FunctionTask(printValueFunc))
         .add(new FunctionTask(incrementFunc), new FunctionTask(printValueFunc))
         .add(new FunctionTask(() => undefined))
         .add(new FunctionTask(incrementFunc), new FunctionTask(printValueFunc));
+      */
 
-      // var bt = new BehaviorTree();
-      // bt.add(sequence);
+      var blueColor = 0;
 
-      console.log(Behave);
+      var moveSequence = new Sequence()
+        .add(new MoveTask(canvas.width * 0.90, canvas.height * 0.90, 5, 10))
+        .add(new MoveTask(canvas.width * 0.90, canvas.height * 0.10, 5, 10))
+        .add(new FunctionTask(() => Math.random() < 0.5))
+        .add(new MoveTask(canvas.width * 0.10, canvas.height * 0.10, 5, 10))
+        .add(new MoveTask(canvas.width * 0.10, canvas.height * 0.90, 5, 10));
 
-      var bt = Behave.create(sequence, { dummyPlugin: true });
+      var colorSequence = new Sequence()
+        .add(new FunctionTask(() => Math.random() < 0.1))
+        .add(new FunctionTask(function() { blueColor = Math.round(Math.random() * 255); return true; }));
+
+      var bt = Behave.create(moveSequence, { dummyPlugin: true });
+      var bt2 = Behave.create(colorSequence, { dummyPlugin: false });
       // var bt2 = Behave.create(new FunctionTask(() => true));
 
       bt.on('activate', function() {
         console.log('triggered by "activate" #1');
       });
 
-      bt.on('before_execute', function() {
-        console.log('triggered by "before_execute" #1');
-        // return false;
-      });
+      // bt.on('before_execute', function() {
+      //   console.log('triggered by "before_execute" #1');
+      // });
 
-      bt.on('after_execute', function() {
-        console.log('triggered by "after_execute" #1');
-      });
+      // bt.on('after_execute', function() {
+      //   console.log('triggered by "after_execute" #1');
+      // });
 
       Behave.activate();
 
-      console.log('result', Behave.execute());
 
-      // var successFunc = (callback) => callback(null, true);
-      // var failureFunc = (callback) => callback('failure', null);
+      (function() {
+        var lastTime = 0;
+        var vendors = ['ms', 'moz', 'webkit', 'o'];
+        for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+            window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+            window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+        }
+     
+        if (!window.requestAnimationFrame)
+          window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+          };
+     
+        if (!window.cancelAnimationFrame)
+          window.cancelAnimationFrame = function(id) { clearTimeout(id); };
+      })();
 
-      // sequence.add(new FunctionTask(successFunc));
-      // sequence.add(new PrintTask('Hi'));
-      // sequence.add(new PrintTask('Hello'));
-      // sequence.add(new FunctionTask(failureFunc));
-      // sequence.add(new PrintTask('Yo'));
-      //var promiseSequence = Promise.promisify(sequence.execute);
+      // 2d Drawing Context.
+      var ctx = canvas.getContext('2d');
 
-      Promise.onPossiblyUnhandledRejection(function(error){
-        console.log('Fail', error);
-        //throw error;
-      });
+      // Set the fill style for the drawing context.
+      ctx.fillStyle = '#212121';
 
-      // sequence.promiseExecuteAll().then(function(result) {
-      //   console.log('result', result);
-      // }).catch(function(e){
-      //   console.log('Error ', e);
-      // });
+      var boxSize = 50;
+      var counter = 0;
 
+      // Animation Logic ________________________________________
+      function update() {
+        window.Behave.execute();
 
+        counter++;
+        ctx.fillStyle = 'rgb(' + Math.round(Math.abs(Math.sin(counter / 100) * 255)) + ',0,' + blueColor + ')';
+        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(pos.x - boxSize / 2, pos.y - boxSize / 2, boxSize, boxSize);
 
-      // dynamic loading API
-      // System.import('src/bt').then(function(module) {
-      //   var t = new module.Task();
-      //   var st = new module.SucceedingTask();
-      //   console.log('result', st.execute());
-      //   console.log('result', t.execute());
-      // }, function(err) {
-      //   console.log('Oh noes, it failed: ', err);
-      // });
+        window.requestAnimationFrame(update);
+      }
+
+      update();
     </script>
   </body>
 </html>
