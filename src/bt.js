@@ -25,18 +25,6 @@ export class FunctionTask extends Task {
   }
 }
 
-export class PrintTask extends Task {
-  constructor(text = 'Hello World') {
-    super('PrintTask');
-    this.text = text;
-  }
-
-  execute() {
-    console.log('PrintTask: ' + this.text);
-    return true;
-  }
-}
-
 export class Sequence extends Task {
   constructor() {
     super('Sequence');
@@ -50,8 +38,7 @@ export class Sequence extends Task {
   }
 
   execute() {
-    for (var i = 0; i < this.tasks.length; i++) {
-      var task = this.tasks[i];
+    for (var task of this.tasks) {
       if (this.runningTask && task !== this.runningTask) continue;
 
       this.runningTask = null;
@@ -75,8 +62,7 @@ export class Selector extends Task {
   }
 
   execute() {
-    for (var i = 0; i < this.tasks.length; i++) {
-      var task = this.tasks[i];
+    for (var task of this.tasks) {
       if (this.runningTask && task !== this.runningTask) continue;
 
       this.runningTask = null;

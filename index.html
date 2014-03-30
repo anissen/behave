@@ -56,6 +56,16 @@
         .add(new FunctionTask(() => Math.random() < 0.1))
         .add(new FunctionTask(function() { blueColor = Math.round(Math.random() * 255); return true; }));
 
+      var PrintTask = function(text) { 
+        return new FunctionTask(function() {
+          console.log('PrintTask:', text);
+          return true;
+        });
+      };
+
+      var printTask = new PrintTask('hello wooorld!');
+      printTask.execute();
+
       var printSelector = new Selector()
         .add(new Sequence()
           .add(new FunctionTask(() => Math.random() < 0.5))
